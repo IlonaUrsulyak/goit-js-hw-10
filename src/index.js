@@ -12,10 +12,17 @@ const refs = {
 
 refs.inpuSearchBox.addEventListener('input', debounce(onSearchCountry,DEBOUNCE_DELAY));
 
-function onSearchCountry(event) {
+function onSearchCountry() {
     const name = refs.inpuSearchBox.value.trim();
+    inpuSearchBox.reset();
+
     fetchCountries(name)
         .then(countries => {
+            if (countries.lenght === 1) {
+                countryInfo.innerHTML = cardAboutCountry(countries);
+            } else if {
+
+            }
             
         } )
 
