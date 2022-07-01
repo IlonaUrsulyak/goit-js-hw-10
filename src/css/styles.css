@@ -18,3 +18,12 @@ body {
   max-width: 320px;
   margin-bottom: 16px;
 }
+
+.name-official{
+  font-size: 50px;
+}
+
+ul, li {
+  list-style: none;
+}
+

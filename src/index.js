@@ -1,6 +1,7 @@
 import './css/styles.css';
-import debounce from 'lodash.debounce';
-import Notiflix from 'notiflix';
+import { debounce } from 'lodash';
+import {Notify}from 'notiflix';
+import { fetchCountries } from './fetchCountries';
 
 const DEBOUNCE_DELAY = 300;
 
@@ -12,54 +13,49 @@ const refs = {
 
 refs.inpuSearchBox.addEventListener('input', debounce(onSearchCountry,DEBOUNCE_DELAY));
 
-function onSearchCountry() {
+function onSearchCountry(e) {
+
     const name = refs.inpuSearchBox.value.trim();
-    inpuSearchBox.reset();
+    refs.countryList.innerHTML  = '';
+    refs.countryInfo.innerHTML = '';
+  
+  fetchCountries(name)
+    .then(countries => {
 
-    fetchCountries(name)
-        .then(countries => {
-            if (countries.lenght === 1) {
-                countryInfo.innerHTML = cardAboutCountry(countries);
-            } else if {
-
-            }
-            
-        } )
-
-};
-
-function fetchCountries(name) {
-    return fetch(`https://restcountries.com/v3.1/name/${name}?fields=name,capital,population,flags,languages`)
-    .then(response => {
-        if(!response.ok) {
-            throw new Error(response.statusText);
-        };
-        return response.json();
-    })
+      if (countries.length  === 1) {
+        refs.countryInfo.innerHTML = cardAboutCountry(countries);
+      } else if (countries.length > 10) {
+        Notify.info('Too many matches found. Please enter a more specific name.');
+      } else {
+        refs.countryList.innerHTML = makeListCountries(countries);
+      }
+    }).catch(() => Notify.failure("Oops, there is no country with that name"));
 };
 
 function makeListCountries(countries) {
-    return countries.map(country => `<li class="country-list__item">
-       <img src=${country.flags.svg} decoding="async" height="15">
+    return countries.map(country => `<li>
+       <img src=${country.flags.svg} height="15">
         <span>${country.name.official}</span>
       </li>`).join('');
     
 };
 
 function cardAboutCountry(countries) {
-    return countries.map(country => `<ul>
-  <li>
-    <img src=${country.flags.svg} height="25">
-    <span><b>${country.name.official}</b></span>
-  </li>
-  <li>
-    <span><b>Capital:</b><span>${country.capital}</span></span>
-  </li>
-  <li>
-    <span><b>Population:</b><span>${country.population}</span></span>
-  </li><li>
-    <span><b>Languages:</b><span>${country.languages}</span></span>
-  </li>
-</ul>`).join('')
+  return countries.map(country => `
+    <ul>
+        <li>
+            <img src=${country.flags.svg} height=25/>
+            <span class = "name-official"><b>${country.name.official}</b></span>
+        </li>
+        <li> 
+            <span><b>Capital:</b></span> <span>${country.capital}</span>
+        </li>
+        <li>
+            <span><b>Population:</b></span> <span>${country.population}</span>
+        </li>
+        <li>       
+            <span><b>Languages:</b></span> <span>${Object.values(country.languages)}</span>
+        </li>
+    </ul>`).join('');
 };
 
